@@ -2,27 +2,304 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8" />
-<title>Cagnotte</title>
+<title>🎂 Cagnotte d'Émeline</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <style>
-  body { font-family: system-ui, sans-serif; max-width:600px; margin:20px auto; padding:0 10px; }
-  h1 { margin-top:0; }
-  ul { padding-left:20px; }
-  .loading { color: #666; font-style: italic; }
-  .error { color: #d32f2f; background: #ffebee; padding: 10px; border-radius: 4px; margin: 10px 0; }
-  .success { color: #2e7d32; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    animation: slideUp 0.6s ease-out;
+  }
+  
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .header {
+    background: linear-gradient(135deg, #ff6b6b, #ffa500);
+    color: white;
+    padding: 40px 30px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+    animation: float 20s linear infinite;
+  }
+  
+  @keyframes float {
+    0% { transform: translateX(-50px) translateY(-50px); }
+    100% { transform: translateX(50px) translateY(50px); }
+  }
+  
+  .header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .header .subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    background: white;
+  }
+  
+  .stat-card {
+    padding: 30px;
+    text-align: center;
+    border-right: 1px solid #f0f0f0;
+    transition: all 0.3s ease;
+  }
+  
+  .stat-card:last-child {
+    border-right: none;
+  }
+  
+  .stat-card:hover {
+    background: #f8f9ff;
+    transform: translateY(-2px);
+  }
+  
+  .stat-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+  
+  .stat-label {
+    font-size: 0.9rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+  }
+  
+  .last-update {
+    font-size: 0.85rem;
+    color: #888;
+    margin-top: 5px;
+  }
+  
+  .status {
+    margin: 20px 30px;
+    padding: 15px 20px;
+    border-radius: 12px;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .status.loading {
+    background: linear-gradient(135deg, #74b9ff, #0984e3);
+    color: white;
+    animation: pulse 2s infinite;
+  }
+  
+  .status.error {
+    background: linear-gradient(135deg, #fd79a8, #e84393);
+    color: white;
+  }
+  
+  .status.success {
+    background: linear-gradient(135deg, #55efc4, #00b894);
+    color: white;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  
+  .participants-section {
+    padding: 30px;
+  }
+  
+  .participants-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .participants-section h2::before {
+    content: '👥';
+    font-size: 1.5rem;
+  }
+  
+  .participants-list {
+    list-style: none;
+    display: grid;
+    gap: 15px;
+  }
+  
+  .participant-item {
+    background: linear-gradient(135deg, #f8f9ff 0%, #fff 100%);
+    border: 2px solid #f0f0f0;
+    border-radius: 15px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .participant-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background: linear-gradient(135deg, #ff6b6b, #ffa500);
+    transition: width 0.3s ease;
+  }
+  
+  .participant-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-color: #667eea;
+  }
+  
+  .participant-item:hover::before {
+    width: 8px;
+  }
+  
+  .participant-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #333;
+  }
+  
+  .participant-check {
+    font-size: 1.5rem;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+  }
+  
+  .participant-item:hover .participant-check {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+  }
+  
+  .empty-state .emoji {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    display: block;
+  }
+  
+  @media (max-width: 600px) {
+    .container {
+      margin: 10px;
+      border-radius: 15px;
+    }
+    
+    .header {
+      padding: 30px 20px;
+    }
+    
+    .header h1 {
+      font-size: 2rem;
+    }
+    
+    .stats {
+      grid-template-columns: 1fr;
+    }
+    
+    .stat-card {
+      border-right: none;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .stat-card:last-child {
+      border-bottom: none;
+    }
+    
+    .participants-section {
+      padding: 20px;
+    }
+    
+    .participant-item {
+      padding: 15px;
+    }
+  }
 </style>
 </head>
 <body>
-<h1>Cagnotte</h1>
-<p>Total : <strong id="total">0 €</strong></p>
-<p>Dernière mise à jour : <span id="lastUpdate">—</span></p>
+<div class="container">
+  <div class="header">
+    <h1>🎂 Cagnotte d'Émeline</h1>
+    <div class="subtitle">Participons tous à son anniversaire !</div>
+  </div>
+  
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-value" id="total">0 €</div>
+      <div class="stat-label">Total collecté</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="participantCount">0</div>
+      <div class="stat-label">Participants</div>
+      <div class="last-update">Mis à jour : <span id="lastUpdate">—</span></div>
+    </div>
+  </div>
 
-<div id="status" class="loading">Chargement des données...</div>
+  <div id="status" class="status loading">Chargement des données...</div>
 
-<h2>Participants</h2>
-<ul id="list"></ul>
+  <div class="participants-section">
+    <h2>Participants</h2>
+    <ul class="participants-list" id="list"></ul>
+  </div>
+</div>
 
 <script>
 const SHEET_ID = "12G_EmM7B28ZPl0zK27bXlEIDM-bo-6sCNZQw1e_BqGg";
@@ -53,7 +330,7 @@ function parseDate(str){
 function updateStatus(message, className = '') {
   const statusEl = document.getElementById("status");
   statusEl.textContent = message;
-  statusEl.className = className;
+  statusEl.className = `status ${className}`;
 }
 
 function fetchData(){
@@ -81,7 +358,7 @@ function fetchData(){
         const ul = document.getElementById("list");
         ul.innerHTML = "";
         
-        rows.forEach(r => {
+        rows.forEach((r, index) => {
           const amount = parseFloat(String(r.Montant).replace(",", "."));
           if(!isNaN(amount)) total += amount;
           
@@ -90,16 +367,22 @@ function fetchData(){
           if(d && (!lastDate || d > lastDate)) lastDate = d;
 
           const li = document.createElement("li");
-          li.textContent = `${r.Nom} — ${isNaN(amount) ? "0.00" : amount.toFixed(2)} €`;
+          li.className = "participant-item";
+          li.style.animationDelay = `${index * 0.1}s`;
+          li.innerHTML = `
+            <span class="participant-name">${r.Nom}</span>
+            <span class="participant-check">✅</span>
+          `;
           ul.appendChild(li);
         });
         
         document.getElementById("total").textContent = total.toFixed(2) + " €";
+        document.getElementById("participantCount").textContent = rows.length;
         document.getElementById("lastUpdate").textContent = lastDate
           ? lastDate.toLocaleString('fr-FR', { dateStyle:'short', timeStyle:'short' })
           : "—";
         
-        updateStatus(`Données mises à jour avec succès (${rows.length} participant${rows.length > 1 ? 's' : ''})`, "success");
+        updateStatus(`✨ ${rows.length} participant${rows.length > 1 ? 's' : ''} • Total : ${total.toFixed(2)} €`, "success");
         
         // Hide status after success
         setTimeout(() => {
